@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1d4ed8">
+  <title>Lavadero · Panel Encargado</title>
+  <style>
+    :root {
+      --brand: #3b82f6;
+      --brand-dark: #1d4ed8;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--brand-dark);
+      color: white;
+      padding: 16px 20px 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    header span {
+      font-size: 13px;
+      opacity: 0.7;
+    }
+
+    .tabs {
+      display: flex;
+      background: var(--brand-dark);
+      padding: 0 16px 12px;
+      gap: 6px;
+      position: sticky;
+      top: 56px;
+      z-index: 99;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 4px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: white;
+      color: var(--brand-dark);
+    }
+
+    .content {
+      padding: 16px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .card-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .card-row .card-title {
+      margin-bottom: 0;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text);
+      background: white;
+      outline: none;
+      transition: border 0.2s;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--brand);
+    }
+
+    .field textarea {
+      resize: none;
+      height: 64px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* SEARCH ROW */
+    .search-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-row input {
+      flex: 1;
+      padding: 11px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--text);
+      background: white;
+      outline: none;
+      transition: border 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .search-row input:focus {
+      border-color: var(--brand);
+    }
+
+    .btn-buscar-cliente {
+      padding: 11px 18px;
+      background: var(--brand);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .btn-buscar-cliente:hover {
+      background: var(--brand-dark);
+    }
+
+    .btn-refresh {
+      border: none;
+      background: var(--brand);
+      color: white;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* VEHICULO ENCONTRADO */
+    .vehiculo-found .placa {
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--brand-dark);
+    }
+
+    .vehiculo-found .info {
+      font-size: 14px;
+      color: var(--text);
+      margin-top: 4px;
+    }
+
+    .vehiculo-found .cliente-line {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    /* SERVICIOS — selección única */
+    .servicios-radio {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .servicio-radio-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .servicio-radio-item.selected {
+      border-color: var(--brand);
+      background: #eff6ff;
+    }
+
+    .servicio-radio-item .nombre {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .servicio-radio-item .precio {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--brand-dark);
+    }
+
+    /* SUBMIT BTN */
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--brand);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-submit:hover {
+      background: var(--brand-dark);
+    }
+
+    .btn-submit:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+    }
+
+    /* TABLERO */
+    .tablero-meta {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      text-align: right;
+    }
+
+    .orden-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .orden-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .orden-patente {
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 1px;
+    }
+
+    .etapa-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .etapa-recepcion {
+      background: #64748b;
+    }
+
+    .etapa-lav-interior {
+      background: #3b82f6;
+    }
+
+    .etapa-lav-exterior {
+      background: #8b5cf6;
+    }
+
+    .etapa-secado {
+      background: #f59e0b;
+    }
+
+    .etapa-encerado {
+      background: #ec4899;
+    }
+
+    .etapa-listo {
+      background: #22c55e;
+    }
+
+    .etapa-otro {
+      background: #94a3b8;
+    }
+
+    .orden-info,
+    .orden-cliente,
+    .orden-servicio,
+    .orden-tiempo {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .orden-tiempo.tiempo-alerta {
+      color: var(--danger);
+      font-weight: 700;
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #0f172a;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 999;
+      transition: transform 0.3s;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 90vw;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: var(--success);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>🚗 Lavadero</h1>
+    <span>Panel Encargado</span>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="tablero" onclick="switchTab('tablero')">📋 Tablero</button>
+    <button class="tab-btn" data-tab="frecuente" onclick="switchTab('frecuente')">🔄 Cliente frecuente</button>
+    <button class="tab-btn" data-tab="nuevo" onclick="switchTab('nuevo')">➕ Nuevo cliente</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══════════════════════════════════════
+       TAB 1: TABLERO
+    ════════════════════════════════════════ -->
+    <div class="panel active" id="panel-tablero">
+      <div class="card">
+        <div class="card-row">
+          <div class="card-title">🚗 Autos en el lavadero</div>
+          <button class="btn-refresh" onclick="cargarTablero()">⟳ Actualizar</button>
+        </div>
+      </div>
+      <div class="tablero-meta" id="tablero-meta"></div>
+      <div id="tablero-list">
+        <div class="empty">Cargando...</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+       TAB 2: CLIENTE FRECUENTE
+    ════════════════════════════════════════ -->
+    <div class="panel" id="panel-frecuente">
+      <div class="card">
+        <div class="card-title">🔍 Buscar por patente</div>
+        <div class="search-row">
+          <input type="text" id="f-patente" placeholder="AA001BB" maxlength="9" autocomplete="off"
+            onkeydown="if(event.key==='Enter') buscarPorPatente()">
+          <button class="btn-buscar-cliente" onclick="buscarPorPatente()">🔍 Buscar</button>
+        </div>
+        <div id="f-resultado"></div>
+      </div>
+
+      <div id="f-form-section" style="display:none">
+        <div class="card">
+          <div class="card-title">🚙 Vehículo encontrado</div>
+          <div class="vehiculo-found">
+            <div class="placa" id="f-v-patente"></div>
+            <div class="info" id="f-v-info"></div>
+            <div class="cliente-line" id="f-v-cliente"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧹 Servicio</div>
+          <div class="servicios-radio" id="f-servicios"></div>
+          <div class="divider"></div>
+          <div class="field">
+            <label>Observaciones</label>
+            <textarea id="f-obs" placeholder="Rayadura en puerta, sin tapa de nafta..."></textarea>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="f-btn" onclick="submitFrecuente()">Crear orden</button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+       TAB 3: NUEVO CLIENTE
+    ════════════════════════════════════════ -->
+    <div class="panel" id="panel-nuevo">
+      <div class="card">
+        <div class="card-title">👤 Datos del cliente</div>
+        <div class="row">
+          <div class="field">
+            <label>Nombre</label>
+            <input type="text" id="nv-nombre" placeholder="Juan Pérez" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Teléfono</label>
+            <input type="tel" id="nv-telefono" placeholder="5491112345678" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🚙 Datos del vehículo</div>
+        <div class="field">
+          <label>Patente</label>
+          <input type="text" id="nv-patente" placeholder="AA001BB" maxlength="9" autocomplete="off">
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Marca / Modelo</label>
+            <input type="text" id="nv-modelo" placeholder="Ford Ka" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>Color</label>
+            <input type="text" id="nv-color" placeholder="Rojo" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🧹 Servicio</div>
+        <div class="servicios-radio" id="nv-servicios"></div>
+        <div class="divider"></div>
+        <div class="field">
+          <label>Observaciones</label>
+          <textarea id="nv-obs" placeholder="Rayadura en puerta, sin tapa de nafta..."></textarea>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="nv-btn" onclick="submitNuevo()">Registrar ingreso</button>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ══════════════════════════════════════════════
+    // CONFIG
+    // ══════════════════════════════════════════════
+    const CONFIG = {
+      airtableToken: 'pat40fvE0zQGm4GEF.2f34b33d8feb3625318a692a1b07b05d2e7ba046c5f52504054e7859d7d5bddb',
+      airtableBase: 'appmvACq1rRvZb62l',
+      // Las ESCRITURAS (crear cliente/vehículo/orden) pasan por n8n — el token
+      // de Airtable de arriba solo se usa para LECTURAS (tablero, servicios,
+      // búsqueda por patente).
+      // Modo TEST: hay que apretar "Listen for test event" en el nodo
+      // "Webhook Ingreso1" en n8n ANTES de cada prueba — se apaga después
+      // de una sola ejecución. Cuando actives el workflow en serio, cambiá
+      // esto a '.../webhook' (sin "-test").
+      n8nUrl: 'https://n8n-n8n.sbbovb.easypanel.host/webhook-test'
+    };
+
+    const state = {
+      servicios: [],
+      serviciosById: {},
+      servicioFrecuenteId: null,
+      servicioNuevoId: null,
+      vehiculoEncontrado: null,
+      tableroInterval: null
+    };
+
+    // ══════════════════════════════════════════════
+    // AIRTABLE HELPERS
+    // ══════════════════════════════════════════════
+    function atHeaders(json) {
+      const h = { Authorization: `Bearer ${CONFIG.airtableToken}` };
+      if (json) h['Content-Type'] = 'application/json';
+      return h;
+    }
+    function atUrl(path, query) {
+      return `https://api.airtable.com/v0/${CONFIG.airtableBase}/${path}${query ? ('?' + query) : ''}`;
+    }
+    function unwrap(v) {
+      if (Array.isArray(v)) return v.length ? v[0] : '';
+      return v || '';
+    }
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // ══════════════════════════════════════════════
+    // TABS
+    // ══════════════════════════════════════════════
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + tab).classList.add('active');
+
+      if (tab === 'tablero') {
+        cargarTablero();
+        if (state.tableroInterval) clearInterval(state.tableroInterval);
+        state.tableroInterval = setInterval(cargarTablero, 20000);
+      } else if (state.tableroInterval) {
+        clearInterval(state.tableroInterval);
+        state.tableroInterval = null;
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // SERVICIOS — carga única, selección simple (un servicio por orden)
+    // ══════════════════════════════════════════════
+    async function cargarServicios() {
+      try {
+        const res = await fetch(atUrl('Servicios'), { headers: atHeaders() });
+        const data = await res.json();
+        state.servicios = data.records || [];
+        state.serviciosById = {};
+        state.servicios.forEach(r => {
+          state.serviciosById[r.id] = { nombre: r.fields.nombre || 'Servicio', precio: r.fields.precio || 0 };
+        });
+        renderServiciosRadio('f-servicios');
+        renderServiciosRadio('nv-servicios');
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function renderServiciosRadio(containerId) {
+      const cont = document.getElementById(containerId);
+      const activos = state.servicios.filter(r => r.fields.activo);
+      if (!activos.length) {
+        cont.innerHTML = '<div class="empty">No hay servicios activos configurados en Airtable</div>';
+        return;
+      }
+      cont.innerHTML = activos.map(r => `
+        <div class="servicio-radio-item" data-id="${esc(r.id)}" onclick="seleccionarServicio('${containerId}','${esc(r.id)}')">
+          <span class="nombre">${esc(r.fields.nombre)}</span>
+          <span class="precio">$${esc(r.fields.precio)}</span>
+        </div>
+      `).join('');
+    }
+
+    function seleccionarServicio(containerId, recId) {
+      document.querySelectorAll(`#${containerId} .servicio-radio-item`).forEach(el =>
+        el.classList.toggle('selected', el.dataset.id === recId)
+      );
+      if (containerId === 'f-servicios') state.servicioFrecuenteId = recId;
+      else state.servicioNuevoId = recId;
+    }
+
+    // ══════════════════════════════════════════════
+    // TABLERO — autos activos (sin fecha_entrega)
+    // ══════════════════════════════════════════════
+    function etapaClass(etapa) {
+      const map = {
+        'Recepción': 'recepcion', 'Lav. Interior': 'lav-interior', 'Lav. Exterior': 'lav-exterior',
+        'Secado': 'secado', 'Encerado': 'encerado', 'Listo': 'listo'
+      };
+      return 'etapa-' + (map[etapa] || 'otro');
+    }
+
+    function tiempoTexto(mins) {
+      if (mins < 60) return `${mins} min`;
+      return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+    }
+
+    async function cargarTablero() {
+      const list = document.getElementById('tablero-list');
+      try {
+        const formula = encodeURIComponent('NOT({fecha_entrega})');
+        const res = await fetch(
+          atUrl('Ordenes', `filterByFormula=${formula}&sort[0][field]=fecha_ingreso&sort[0][direction]=asc`),
+          { headers: atHeaders() }
+        );
+        const data = await res.json();
+        const ordenes = data.records || [];
+
+        if (!ordenes.length) {
+          list.innerHTML = '<div class="empty">🎉 No hay autos en el lavadero</div>';
+          document.getElementById('tablero-meta').textContent = 'Actualizado ' + horaActual();
+          return;
+        }
+
+        // Ordenes.patente es en realidad un Link a Vehiculos (renombrado, antes
+        // se llamaba "Vehiculo") — por API devuelve un array de Record IDs.
+        const vehiculoIds = [...new Set(ordenes.map(o => (o.fields.patente || [])[0]).filter(Boolean))];
+        let vehiculoMap = {};
+        if (vehiculoIds.length) {
+          const formulaV = encodeURIComponent('OR(' + vehiculoIds.map(id => `RECORD_ID()='${id}'`).join(',') + ')');
+          const resV = await fetch(atUrl('Vehiculos', `filterByFormula=${formulaV}`), { headers: atHeaders() });
+          const dataV = await resV.json();
+          (dataV.records || []).forEach(r => { vehiculoMap[r.id] = r.fields; });
+        }
+
+        list.innerHTML = ordenes.map(o => renderOrdenCard(o, vehiculoMap)).join('');
+        document.getElementById('tablero-meta').textContent = 'Actualizado ' + horaActual();
+      } catch (e) {
+        console.error(e);
+        list.innerHTML = '<div class="empty">Error al cargar el tablero. Tocá "Actualizar" para reintentar.</div>';
+      }
+    }
+
+    function horaActual() {
+      return new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderOrdenCard(o, vehiculoMap) {
+      const f = o.fields;
+      const vehId = (f.patente || [])[0];
+      const veh = vehiculoMap[vehId] || {};
+      const patente = unwrap(veh.patente) || '';
+      const servicioIds = f.Servicio || [];
+      const nombresServicio = servicioIds.map(id => state.serviciosById[id]?.nombre).filter(Boolean);
+      const servicioTxt = nombresServicio.length ? nombresServicio.join(' + ') : '—';
+      const precioRaw = f['precio (from Servicio)'];
+      const precioTotal = Array.isArray(precioRaw) ? precioRaw.reduce((a, b) => a + (b || 0), 0) : (precioRaw || 0);
+      const mins = f.fecha_ingreso ? Math.max(0, Math.floor((Date.now() - new Date(f.fecha_ingreso).getTime()) / 60000)) : 0;
+      const tiempoClass = mins > 60 ? 'tiempo-alerta' : '';
+
+      return `
+        <div class="orden-card">
+          <div class="orden-top">
+            <span class="orden-patente">${esc(patente) || '—'}</span>
+            <span class="etapa-badge ${etapaClass(f.etapa_actual)}">${esc(f.etapa_actual) || '—'}</span>
+          </div>
+          <div class="orden-info">${esc(veh.marca_modelo) || '-'} · ${esc(veh.color) || '-'}</div>
+          <div class="orden-cliente">👤 ${esc(unwrap(veh.nombre)) || '-'}</div>
+          <div class="orden-servicio">🧹 ${esc(servicioTxt)} · $${esc(precioTotal)}</div>
+          <div class="orden-tiempo ${tiempoClass}">⏱ ${tiempoTexto(mins)}${f.cobrado ? ' · 💰 cobrado' : ''}</div>
+        </div>
+      `;
+    }
+
+    // ══════════════════════════════════════════════
+    // CLIENTE FRECUENTE — búsqueda por patente
+    // ══════════════════════════════════════════════
+    async function buscarPorPatente() {
+      const raw = document.getElementById('f-patente').value.trim().toUpperCase().replace(/\s/g, '');
+      if (!raw) return showToast('Ingresá una patente', 'error');
+
+      const cont = document.getElementById('f-resultado');
+      cont.innerHTML = '<div class="empty">Buscando...</div>';
+      document.getElementById('f-form-section').style.display = 'none';
+      state.vehiculoEncontrado = null;
+      state.servicioFrecuenteId = null;
+
+      try {
+        const formula = encodeURIComponent(`UPPER(SUBSTITUTE({patente},' ',''))='${raw}'`);
+        const res = await fetch(atUrl('Vehiculos', `filterByFormula=${formula}&maxRecords=1`), { headers: atHeaders() });
+        const data = await res.json();
+
+        if (!data.records?.length) {
+          cont.innerHTML = `
+            <div class="empty">
+              No se encontró ningún vehículo con la patente <strong>${esc(raw)}</strong>.<br>
+              <button class="btn-buscar-cliente" data-patente="${esc(raw)}" style="margin-top:10px" onclick="irANuevoConPatente(this.dataset.patente)">➕ Registrar como nuevo cliente</button>
+            </div>`;
+          return;
+        }
+
+        const r = data.records[0];
+        const telLinkIds = r.fields.tel_cliente || [];
+        let clienteNombre = unwrap(r.fields.nombre);
+        let clienteTelefono = '';
+
+        if (telLinkIds.length) {
+          try {
+            const resCli = await fetch(atUrl(`Clientes/${telLinkIds[0]}`), { headers: atHeaders() });
+            const dataCli = await resCli.json();
+            if (dataCli.fields) {
+              clienteTelefono = dataCli.fields.telefono || '';
+              if (!clienteNombre) clienteNombre = dataCli.fields.nombre || '';
+            }
+          } catch (_) { /* sigue sin teléfono si falla */ }
+        }
+
+        state.vehiculoEncontrado = {
+          id: r.id,
+          patente: r.fields.patente,
+          marca_modelo: r.fields.marca_modelo,
+          color: r.fields.color,
+          clienteNombre: clienteNombre || '',
+          clienteTelefono: clienteTelefono || ''
+        };
+
+        cont.innerHTML = '';
+        document.getElementById('f-v-patente').textContent = r.fields.patente;
+        document.getElementById('f-v-info').textContent = `${r.fields.marca_modelo || '-'} · ${r.fields.color || '-'}`;
+        document.getElementById('f-v-cliente').textContent =
+          `👤 ${clienteNombre || 'Sin cliente vinculado'}${clienteTelefono ? ' · ' + clienteTelefono : ''}`;
+
+        document.querySelectorAll('#f-servicios .servicio-radio-item').forEach(el => el.classList.remove('selected'));
+        document.getElementById('f-form-section').style.display = 'block';
+      } catch (e) {
+        console.error(e);
+        cont.innerHTML = '<div class="empty">Error al buscar. Revisá la conexión.</div>';
+      }
+    }
+
+    function irANuevoConPatente(patente) {
+      switchTab('nuevo');
+      document.getElementById('nv-patente').value = patente;
+    }
+
+    async function submitFrecuente() {
+      if (!state.vehiculoEncontrado) return showToast('Buscá un vehículo primero', 'error');
+      if (!state.vehiculoEncontrado.clienteTelefono) {
+        return showToast('Este vehículo no tiene cliente vinculado — usá la pestaña "Nuevo cliente"', 'error');
+      }
+      if (!state.servicioFrecuenteId) return showToast('Seleccioná un servicio', 'error');
+
+      const btn = document.getElementById('f-btn');
+      setLoading(btn, true, 'Crear orden');
+      try {
+        const obs = document.getElementById('f-obs').value.trim();
+        const veh = state.vehiculoEncontrado;
+        const data = await crearOrdenViaN8n({
+          nombre_cliente: veh.clienteNombre,
+          telefono_cliente: veh.clienteTelefono,
+          patente: veh.patente,
+          marca_modelo: veh.marca_modelo,
+          color: veh.color,
+          servicio_id: state.servicioFrecuenteId,
+          observaciones: obs
+        });
+        showToast(`✅ Orden #${data.orden_id} creada — ${veh.patente}`, 'success');
+        resetFrecuente();
+        switchTab('tablero');
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      } finally {
+        setLoading(btn, false, 'Crear orden');
+      }
+    }
+
+    function resetFrecuente() {
+      document.getElementById('f-patente').value = '';
+      document.getElementById('f-obs').value = '';
+      document.getElementById('f-resultado').innerHTML = '';
+      document.getElementById('f-form-section').style.display = 'none';
+      state.vehiculoEncontrado = null;
+      state.servicioFrecuenteId = null;
+    }
+
+    // ══════════════════════════════════════════════
+    // NUEVO CLIENTE — crea Cliente + Vehículo (si no existen) + Orden
+    // ══════════════════════════════════════════════
+    async function submitNuevo() {
+      const nombre = document.getElementById('nv-nombre').value.trim();
+      const telefono = document.getElementById('nv-telefono').value.trim().replace(/\D/g, '');
+      const patente = document.getElementById('nv-patente').value.trim().toUpperCase().replace(/\s/g, '');
+      const modelo = document.getElementById('nv-modelo').value.trim();
+      const color = document.getElementById('nv-color').value.trim();
+      const obs = document.getElementById('nv-obs').value.trim();
+      const servicioId = state.servicioNuevoId;
+
+      if (!nombre || !telefono || !patente || !modelo || !servicioId) {
+        return showToast('Completá nombre, teléfono, patente, modelo y servicio', 'error');
+      }
+
+      const btn = document.getElementById('nv-btn');
+      setLoading(btn, true, 'Registrar ingreso');
+
+      try {
+        // Cliente, vehículo (buscar/crear/vincular) y orden se resuelven
+        // server-side en n8n — el frontend solo manda los datos crudos.
+        const data = await crearOrdenViaN8n({
+          nombre_cliente: nombre,
+          telefono_cliente: telefono,
+          patente,
+          marca_modelo: modelo,
+          color,
+          servicio_id: servicioId,
+          observaciones: obs
+        });
+        showToast(`✅ Orden #${data.orden_id} creada — ${patente}`, 'success');
+        resetNuevo();
+        switchTab('tablero');
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      } finally {
+        setLoading(btn, false, 'Registrar ingreso');
+      }
+    }
+
+    function resetNuevo() {
+      ['nv-nombre', 'nv-telefono', 'nv-patente', 'nv-modelo', 'nv-color', 'nv-obs'].forEach(id => document.getElementById(id).value = '');
+      document.querySelectorAll('#nv-servicios .servicio-radio-item').forEach(el => el.classList.remove('selected'));
+      state.servicioNuevoId = null;
+    }
+
+    // ══════════════════════════════════════════════
+    // ORDENES — creación vía n8n (Cliente + Vehículo + Orden, server-side)
+    // Webhook: POST {n8nUrl}/ingreso
+    //   { nombre_cliente, telefono_cliente, patente, marca_modelo, color,
+    //     servicio_id, observaciones }
+    // Respuesta: { success: true, orden_id }
+    // ══════════════════════════════════════════════
+    async function crearOrdenViaN8n(payload) {
+      const res = await fetch(`${CONFIG.n8nUrl}/ingreso`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'No se pudo crear la orden');
+      return data;
+    }
+    // ══════════════════════════════════════════════
+    // UTILS
+    // ══════════════════════════════════════════════
+    function setLoading(btn, loading, label) {
+      btn.disabled = loading;
+      btn.innerHTML = loading ? '<div class="spinner"></div> Procesando...' : label;
+    }
+
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // Patente: solo letras y números en mayúscula
+    ['f-patente', 'nv-patente'].forEach(id => {
+      const el = document.getElementById(id);
+      el?.addEventListener('input', function () {
+        const cur = this.selectionStart;
+        this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        try { this.setSelectionRange(cur, cur); } catch (_) { }
+      });
+    });
+
+    // ══════════════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════════════
+    (async function init() {
+      await cargarServicios();
+      switchTab('tablero');
+    })();
+  </script>
+</body>
+
+</html>

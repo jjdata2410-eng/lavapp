@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1e293b">
+  <title>Lavadero · Puesto</title>
+  <style>
+    :root {
+      --brand: #3b82f6;
+      --success: #22c55e;
+      --success-dark: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card2: #273548;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    /* HEADER */
+    header {
+      padding: 20px 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left h1 {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .header-left p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .badge-puesto {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* SECCIÓN EN PROCESO */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 16px 20px 8px;
+    }
+
+    /* CARD AUTO EN PROCESO */
+    .auto-en-proceso {
+      margin: 0 16px 12px;
+      background: var(--card);
+      border: 2px solid var(--success);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+    }
+
+    .auto-en-proceso .patente {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+    }
+
+    .auto-en-proceso .modelo {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .auto-en-proceso .servicio-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(59, 130, 246, 0.2);
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--brand);
+      margin-bottom: 16px;
+    }
+
+    /* TIMER */
+    .timer-wrap {
+      background: var(--card2);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .timer-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .timer-display {
+      font-size: 48px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+      color: var(--success);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* BOTÓN TERMINÉ */
+    .btn-termine {
+      width: 100%;
+      padding: 18px;
+      background: var(--success);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.2s;
+      active-scale: 0.98;
+    }
+
+    .btn-termine:hover {
+      background: var(--success-dark);
+    }
+
+    .btn-termine:active {
+      transform: scale(0.98);
+    }
+
+    .btn-termine:disabled {
+      background: var(--muted);
+      cursor: not-allowed;
+    }
+
+    /* COLA DE ESPERA */
+    .cola-item {
+      margin: 0 16px 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .cola-item .info {
+      flex: 1;
+    }
+
+    .cola-item .patente {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .cola-item .modelo {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .cola-item .svc {
+      font-size: 12px;
+      color: var(--brand);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .btn-tomar {
+      padding: 12px 20px;
+      background: var(--brand);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-tomar:active {
+      opacity: 0.8;
+    }
+
+    /* EMPTY / LOADING */
+    .empty-state {
+      text-align: center;
+      padding: 50px 30px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 15px;
+    }
+
+    .empty-state small {
+      font-size: 12px;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .loading-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* SPINNER */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #0f172a;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 999;
+      transition: transform 0.3s;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.success {
+      background: var(--success-dark);
+      border-color: var(--success);
+    }
+
+    .toast.error {
+      background: #7f1d1d;
+      border-color: var(--danger);
+    }
+
+    /* REFRESH BTN */
+    .refresh-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px 4px;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .refresh-btn:hover {
+      color: var(--text);
+      background: var(--card2);
+    }
+
+    .last-update {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ERROR CONFIG */
+    .config-error {
+      margin: 20px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid var(--danger);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-size: 13px;
+      color: #fca5a5;
+      line-height: 1.6;
+    }
+
+    .config-error code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <div id="app">
+    <div class="loading-state">Cargando puesto...</div>
+  </div>
+
+  <script>
+    //
+    // CONFIG — reemplazá con tus valores reales
+    // ══════════════════════════════════════════════
+    const CONFIG = {
+      n8nUrl: 'https://n8n-n8n.sbbovb.easypanel.host/webhook-test',
+      airtableToken: 'pat40fvE0zQGm4GEF.2f34b33d8feb3625318a692a1b07b05d2e7ba046c5f52504054e7859d7d5bddb',
+      airtableBase: 'appmvACq1rRvZb62l'
+    };
+
+    // ══════════════════════════════════════════════
+    // SEGURIDAD: escapar todo lo que viene de Airtable o de la URL
+    // antes de insertarlo en innerHTML. Cierra XSS reflejado (?puesto=)
+    // y XSS guardado (datos de Vehiculos/Servicios escritos por
+    // cualquiera que tenga el token, p.ej. desde encargado.html).
+    // ══════════════════════════════════════════════
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    // Algunos campos de Airtable (lookups) devuelven un array aunque en la
+    // grilla se vean como un valor único — esto los aplana a string siempre.
+    function unwrap(v) {
+      return (Array.isArray(v) ? (v[0] ?? '') : (v ?? '')).toString();
+    }
+
+    // ══════════════════════════════════════════════
+    // DEFINICIÓN DE PUESTOS
+    // URL: operario.html?puesto=lavado-interior
+    // ══════════════════════════════════════════════
+    const PUESTOS = {
+      'lavado-interior': {
+        label: 'Lavado Interior',
+        emoji: '🧹',
+        color: '#3b82f6',
+        etapaEspera: 'Recepción',      // autos que me esperan
+        etapaInicio: 'Lav. Interior',  // cuando inicio
+        etapaFin: 'Lav. Exterior'   // cuando termino
+      },
+      'lavado-exterior': {
+        label: 'Lavado Exterior',
+        emoji: '🚿',
+        color: '#8b5cf6',
+        etapaEspera: 'Lav. Interior',
+        etapaInicio: 'Lav. Exterior',
+        etapaFin: 'Secado'
+      },
+      'secado': {
+        label: 'Secado',
+        emoji: '💨',
+        color: '#f59e0b',
+        etapaEspera: 'Lav. Exterior',
+        etapaInicio: 'Secado',
+        etapaFin: null   // depende del servicio: Encerado o Listo
+      },
+      'encerado': {
+        label: 'Encerado',
+        emoji: '✨',
+        color: '#ec4899',
+        etapaEspera: 'Secado',
+        etapaInicio: 'Encerado',
+        etapaFin: 'Listo'
+      }
+    };
+
+    // ══════════════════════════════════════════════
+    // ESTADO GLOBAL
+    // ══════════════════════════════════════════════
+    const params = new URLSearchParams(window.location.search);
+    const puestoId = params.get('puesto') || 'lavado-interior';
+    const puesto = PUESTOS[puestoId];
+
+    let autoEnProceso = null;   // { orden_id, record_id, patente, modelo, servicios, inicio }
+    let timerInterval = null;
+    let segundos = 0;
+    let colaAutos = [];
+    let refreshInterval = null;
+    let servicioMap = {};       // record_id (Servicio) -> nombre
+
+    // ══════════════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════════════
+    window.addEventListener('load', async () => {
+      if (!puesto) {
+        document.getElementById('app').innerHTML = `
+      <div class="config-error">
+        <b>❌ Puesto desconocido: "${esc(puestoId)}"</b><br><br>
+        Usá una de estas URLs:<br>
+        <code>?puesto=lavado-interior</code><br>
+        <code>?puesto=lavado-exterior</code><br>
+        <code>?puesto=secado</code><br>
+        <code>?puesto=encerado</code>
+      </div>`;
+        return;
+      }
+      renderShell();
+      await cargarServicios();
+      cargarAutos();
+      refreshInterval = setInterval(cargarAutos, 20000); // auto-refresh cada 20s
+    });
+
+    // ══════════════════════════════════════════════
+    // SERVICIOS — para resolver nombre desde el link en Ordenes.Servicio
+    // ══════════════════════════════════════════════
+    async function cargarServicios() {
+      try {
+        const res = await fetch(
+          `https://api.airtable.com/v0/${CONFIG.airtableBase}/Servicios`,
+          { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } }
+        );
+        const data = await res.json();
+        servicioMap = {};
+        (data.records || []).forEach(r => { servicioMap[r.id] = r.fields.nombre || 'Servicio'; });
+      } catch (e) { console.warn('No se pudieron cargar los servicios:', e.message); }
+    }
+
+    function nombreServicios(servicioIds) {
+      return (servicioIds || []).map(id => servicioMap[id]).filter(Boolean).join(' + ');
+    }
+
+    // ══════════════════════════════════════════════
+    // RENDER SHELL (estructura fija)
+    // ══════════════════════════════════════════════
+    function renderShell() {
+      document.title = `${puesto.emoji} ${puesto.label} · Lavadero`;
+      document.querySelector('meta[name="theme-color"]').content = puesto.color;
+
+      document.getElementById('app').innerHTML = `
+    <header>
+      <div class="header-left">
+        <h1>${puesto.emoji} ${puesto.label}</h1>
+        <p>Puesto de trabajo</p>
+      </div>
+      <div class="badge-puesto" style="background:${puesto.color}20; color:${puesto.color}; border: 1px solid ${puesto.color}40">
+        <span style="width:8px;height:8px;border-radius:50%;background:${puesto.color};display:inline-block"></span>
+        Activo
+      </div>
+    </header>
+
+    <div id="zona-en-proceso"></div>
+
+    <div class="refresh-row">
+      <div class="section-title" style="padding:0">En cola</div>
+      <button class="refresh-btn" onclick="cargarAutos()">↻ Actualizar</button>
+    </div>
+
+    <div id="zona-cola"></div>
+    <div class="last-update" style="text-align:center;padding:12px 0 24px" id="last-update"></div>
+  `;
+    }
+
+    // ══════════════════════════════════════════════
+    // CARGAR AUTOS DESDE AIRTABLE
+    // ══════════════════════════════════════════════
+    async function cargarAutos() {
+      try {
+        // Autos esperando (etapaEspera) + en proceso (etapaInicio) de este puesto
+        const formula = encodeURIComponent(
+          `OR({etapa_actual}='${puesto.etapaEspera}',{etapa_actual}='${puesto.etapaInicio}')`
+        );
+        const res = await fetch(
+          `https://api.airtable.com/v0/${CONFIG.airtableBase}/Ordenes?filterByFormula=${formula}&sort[0][field]=fecha_ingreso&sort[0][direction]=asc`,
+          { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } }
+        );
+        const data = await res.json();
+        const records = data.records || [];
+
+        // Ordenes.patente es en realidad un Link a Vehiculos (renombrado, antes
+        // se llamaba "Vehiculo") — por API devuelve un array de Record IDs, no
+        // el texto de la patente. Hay que resolverlo contra Vehiculos por ID.
+        const vehiculoIds = [...new Set(records.map(r => (r.fields.patente || [])[0]).filter(Boolean))];
+        const vehMap = {};
+        if (vehiculoIds.length > 0) {
+          const formulaV = encodeURIComponent(
+            'OR(' + vehiculoIds.map(id => `RECORD_ID()='${id}'`).join(',') + ')'
+          );
+          try {
+            const resV = await fetch(
+              `https://api.airtable.com/v0/${CONFIG.airtableBase}/Vehiculos?filterByFormula=${formulaV}`,
+              { headers: { Authorization: `Bearer ${CONFIG.airtableToken}` } }
+            );
+            const dataV = await resV.json();
+            (dataV.records || []).forEach(v => {
+              vehMap[v.id] = { patente: unwrap(v.fields.patente), modelo: unwrap(v.fields.marca_modelo), color: unwrap(v.fields.color) };
+            });
+          } catch (_) { /* si falla el lookup, seguimos sin patente/modelo/color */ }
+        }
+        records.forEach(r => {
+          const vehId = (r.fields.patente || [])[0];
+          const veh = vehMap[vehId] || {};
+          r.fields._patente = veh.patente || '-';
+          r.fields._modelo = veh.modelo || '';
+          r.fields._color = veh.color || '';
+          r.fields._servicioNombre = nombreServicios(r.fields.Servicio);
+        });
+
+        // Separar en proceso vs cola
+        const enProceso = records.filter(r => r.fields.etapa_actual === puesto.etapaInicio);
+        colaAutos = records.filter(r => r.fields.etapa_actual === puesto.etapaEspera);
+
+        // Si hay uno en proceso y no tengo timer activo, mostrarlo
+        if (enProceso.length > 0 && !autoEnProceso) {
+          const r = enProceso[0];
+          autoEnProceso = {
+            orden_id: r.fields.orden_id,
+            record_id: r.id,
+            patente: r.fields._patente || '-',
+            modelo: r.fields._modelo || '',
+            color: r.fields._color || '',
+            servicios: r.fields._servicioNombre || '',
+            inicio: new Date().toISOString()
+          };
+          iniciarTimer();
+        }
+
+        renderEnProceso();
+        renderCola();
+
+        document.getElementById('last-update').textContent =
+          'Actualizado ' + new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+
+      } catch (e) {
+        console.error(e);
+        if (!autoEnProceso) {
+          document.getElementById('zona-cola').innerHTML =
+            `<div class="empty-state"><div class="icon">⚠️</div><p>Error de conexión</p><small>${esc(e.message)}</small></div>`;
+        }
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // RENDER EN PROCESO
+    // ══════════════════════════════════════════════
+    function renderEnProceso() {
+      const zona = document.getElementById('zona-en-proceso');
+      if (!autoEnProceso) { zona.innerHTML = ''; return; }
+
+      zona.innerHTML = `
+    <div class="section-title">✅ En proceso</div>
+    <div class="auto-en-proceso">
+      <div class="patente">${esc(autoEnProceso.patente)}</div>
+      <div class="modelo">${esc([autoEnProceso.modelo, autoEnProceso.color].filter(Boolean).join(' · ')) || '&nbsp;'}</div>
+      <div class="servicio-tag">${esc(autoEnProceso.servicios) || 'Servicio'}</div>
+      <div class="timer-wrap">
+        <div class="timer-label">Tiempo transcurrido</div>
+        <div class="timer-display" id="timer-display">00:00</div>
+      </div>
+      <button class="btn-termine" id="btn-termine" onclick="termine()">
+        ✅ Terminé — Orden #${esc(autoEnProceso.orden_id)}
+      </button>
+    </div>
+  `;
+    }
+
+    // ══════════════════════════════════════════════
+    // RENDER COLA
+    // Seguridad: el botón "Tomar" pasa solo el Record ID por
+    // data-attribute (ya escapado) — nunca concatena patente/modelo/
+    // color/servicio dentro de un atributo o de un onclick. Esos
+    // datos se leen del array colaAutos en memoria, ya en runtime.
+    // ══════════════════════════════════════════════
+    function renderCola() {
+      const zona = document.getElementById('zona-cola');
+      if (colaAutos.length === 0) {
+        zona.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🕐</div>
+        <p>Sin autos en cola</p>
+        <small>Se actualiza cada 20 segundos</small>
+      </div>`;
+        return;
+      }
+
+      zona.innerHTML = colaAutos.map((r, i) => `
+    <div class="cola-item">
+      <div style="font-size:28px">${i === 0 ? '🚗' : '🚙'}</div>
+      <div class="info">
+        <div class="patente">${esc(r.fields._patente) || '-'}</div>
+        <div class="modelo">${esc([r.fields._modelo, r.fields._color].filter(Boolean).join(' · ')) || `Orden #${esc(r.fields.orden_id) || '-'}`}</div>
+        <div class="svc">${esc(r.fields._servicioNombre)} · Orden #${esc(r.fields.orden_id) || '-'}</div>
+      </div>
+      ${!autoEnProceso ? `
+        <button class="btn-tomar" data-record-id="${esc(r.id)}" onclick="tomarAutoPorId(this.dataset.recordId)">
+          ▶ Tomar
+        </button>
+      ` : '<span style="font-size:12px;color:var(--muted)">En espera</span>'}
+    </div>
+  `).join('');
+    }
+
+    // ══════════════════════════════════════════════
+    // TOMAR AUTO
+    // ══════════════════════════════════════════════
+    function tomarAutoPorId(recordId) {
+      const r = colaAutos.find(x => x.id === recordId);
+      if (!r) return showToast('No se encontró el auto en la cola, actualizá', 'error');
+      tomarAuto(r.id, r.fields.orden_id, r.fields._patente, r.fields._servicioNombre, r.fields._modelo, r.fields._color);
+    }
+
+    async function tomarAuto(recordId, ordenId, patente, servicios, modelo, color) {
+      if (autoEnProceso) return showToast('Ya tenés un auto en proceso', 'error');
+
+      autoEnProceso = {
+        orden_id: ordenId,
+        record_id: recordId,
+        patente,
+        modelo: modelo || '',
+        color: color || '',
+        servicios,
+        inicio: new Date().toISOString()
+      };
+
+      renderEnProceso();
+      renderCola();
+      iniciarTimer();
+
+      // Avisar a n8n que inicia esta etapa
+      try {
+        await fetch(`${CONFIG.n8nUrl}/etapa`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orden_id: ordenId,
+            etapa: puesto.etapaInicio,
+            inicio: autoEnProceso.inicio,
+            duracion_min: 0,
+            operario: puesto.label
+          })
+        });
+      } catch (e) { console.warn('No se pudo notificar inicio:', e.message); }
+    }
+
+    // ══════════════════════════════════════════════
+    // TIMER
+    // ══════════════════════════════════════════════
+    function iniciarTimer() {
+      segundos = 0;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        segundos++;
+        const mm = String(Math.floor(segundos / 60)).padStart(2, '0');
+        const ss = String(segundos % 60).padStart(2, '0');
+        const display = document.getElementById('timer-display');
+        if (display) display.textContent = `${mm}:${ss}`;
+      }, 1000);
+    }
+
+    // ══════════════════════════════════════════════
+    // TERMINÉ
+    // ══════════════════════════════════════════════
+    async function termine() {
+      if (!autoEnProceso) return;
+
+      const btn = document.getElementById('btn-termine');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Guardando...'; }
+
+      clearInterval(timerInterval);
+      const duracionMin = Math.round(segundos / 60);
+
+      // Determinar etapa siguiente
+      let etapaFin = puesto.etapaFin;
+      if (puestoId === 'secado') {
+        // Si el servicio incluye encerado → va a Encerado; sino → Listo
+        const tieneEncerado = (autoEnProceso.servicios || '').toLowerCase().includes('encerad');
+        etapaFin = tieneEncerado ? 'Encerado' : 'Listo';
+      }
+
+      try {
+        await fetch(`${CONFIG.n8nUrl}/etapa`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orden_id: autoEnProceso.orden_id,
+            etapa: etapaFin,
+            inicio: autoEnProceso.inicio,
+            duracion_min: duracionMin,
+            operario: puesto.label
+          })
+        });
+
+        showToast(`✅ Auto ${autoEnProceso.patente} completado en ${duracionMin} min`, 'success');
+        autoEnProceso = null;
+        segundos = 0;
+        renderEnProceso();
+        await cargarAutos();
+
+      } catch (e) {
+        showToast('Error al guardar: ' + e.message, 'error');
+        if (btn) { btn.disabled = false; btn.innerHTML = `✅ Terminé — Orden #${autoEnProceso?.orden_id}`; }
+        iniciarTimer();
+      }
+    }
+
+    // ══════════════════════════════════════════════
+    // UTILS
+    // ══════════════════════════════════════════════
+    function showToast(msg, type = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${type} show`;
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+  </script>
+</body>
+
+</html>
